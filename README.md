@@ -11,6 +11,20 @@
 5. Put those files inside Android/data/org.kartkrew.srb2k/files (you may need shizuku for this)
 6. You can play now!
 
+## Some stuff about the port
+
+Q:I want to use models/opengl
+A:Not happening unless i get help with it or gain some more coding knowledge
+
+Q:I have found a custom version and want to play it on mobile
+A:Only if the source code is on github or just availible (may be able to do it in the future tho)
+
+Q:Can you support 32-bit android?
+A:NO. 32-bit is something i cannot compile for unless someone with a 32-bit device wants to do it
+
+Q:Can you use srb2kart-saturn instead?
+A:Maybe in the future (would be its own repo tho)
+
 ## Compiling
 
 See [SRB2 Wiki/Source code compiling](http://wiki.srb2.org/wiki/Source_code_compiling). The compiling process for SRB2Kart is largely identical to SRB2.
