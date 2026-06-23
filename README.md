@@ -25,6 +25,9 @@ A:NO. 32-bit is something i cannot compile for unless someone with a 32-bit devi
 Q:Can you use srb2kart-saturn instead?
 A:Maybe in the future (would be its own repo tho)
 
+Q:Touch Controls?
+A:NO. Touch controls wouldn't make sense in a kart racer like this
+
 ## Compiling
 
 See [SRB2 Wiki/Source code compiling](http://wiki.srb2.org/wiki/Source_code_compiling). The compiling process for SRB2Kart is largely identical to SRB2.
