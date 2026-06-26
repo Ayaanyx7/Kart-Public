@@ -533,37 +533,42 @@ if(NOT ${SRB2_SDL2_AVAILABLE} AND NOT ${SRB2_WIN32_AVAILABLE})
 endif()
 
 # ====================================================================
-# Android OpenGL hardware renderer injector via gl4es (Gradle 8.9 Isolation)
+# Android OpenGL hardware renderer injector via gl4es
 # ====================================================================
 if(ANDROID)
-    # 1. Directly inject the pristine, clean PC hardware rendering engine files
+    # 1. Gather only the stable, working PC hardware engine files
     target_sources(srb2kart PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_opengl/r_opengl.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_glcommon/r_glcommon.c"
+        
+        # Compile gl4es core code directly inline to bypass Gradle module errors
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/gl4es.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/matrix.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/buffers.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/blend.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/clear.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/raster.c"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src/gl/texture.c"
     )
-
-    # 2. Tell the game engine preprocessor to turn on legacy desktop PC HW drawing loops
+    
+    # 2. Inject standard PC preprocessor flags to activate 3D rendering
     target_compile_definitions(srb2kart PRIVATE 
         HWRENDER 
         UNIX
+        NOX11       # Safe flag: Bypasses desktop Linux window managers
+        NOEGL       # Safe flag: Uses Android's native viewport canvas
     )
-
-    # 3. Expose the fake desktop GL headers provided by your submodule path
+    
+    # 3. Force header directory checks to catch gl4es mapping layers
     target_include_directories(srb2kart PRIVATE 
         "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/include"
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/src"
     )
-
-    # 4. Safely declare gl4es as an imported binary target to keep Gradle 8.9 quiet
-    add_library(gl4es_bridge STATIC IMPORTED)
-    set_target_properties(gl4es_bridge PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/gl4es/libgl4es.a"
-    )
-
-    # 5. Connect the core executable to the isolated translation engine layers
+    
+    # 4. Route final calls directly down to Android's graphic subsystem drivers
     target_link_libraries(srb2kart PRIVATE 
-        gl4es_bridge 
-        GLESv2       # Links downstream to mobile hardware
-        EGL          # Controls viewport canvas display
-        log          # Native system logger access
+        GLESv2 
+        EGL 
+        log
     )
 endif()
