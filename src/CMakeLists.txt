@@ -531,3 +531,33 @@ add_subdirectory(sdl)
 if(NOT ${SRB2_SDL2_AVAILABLE} AND NOT ${SRB2_WIN32_AVAILABLE})
 	message(FATAL_ERROR "There are no targets available to build an SRB2Kart executable. :(")
 endif()
+
+# ====================================================================
+# Android OpenGL hardware renderer injector via gl4es
+# ====================================================================
+if(ANDROID)
+    # 1. Force add the PC hardware files straight into your game target
+    target_sources(srb2kart PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_opengl/r_opengl.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_glcommon/r_glcommon.c"
+    )
+    
+    # 2. Assign the hardware rendering definitions globally
+    target_compile_definitions(srb2kart PRIVATE 
+        HWRENDER 
+        UNIX
+    )
+    
+    # 3. Force header search path to catch gl4es wrappers before native NDK links
+    target_include_directories(srb2kart PRIVATE 
+        "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/include"
+    )
+    
+    # 4. Bind the target binary execution straight into the translation framework
+    target_link_libraries(srb2kart PRIVATE 
+        gl4es 
+        GLESv2 
+        EGL 
+        log
+    )
+endif()
