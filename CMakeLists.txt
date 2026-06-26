@@ -141,3 +141,20 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMAKE_VERSION_MAJOR}.${CMAKE_VERSIO
 include(CPack)
 
 add_subdirectory(thirdparty)
+
+# ====================================================================
+# Android GPU Translation Layer Setup (gl4es Bridge Configuration)
+# ====================================================================
+if(ANDROID)
+    # Force gl4es compile profile settings for mobile translation layers
+    set(NOX11 ON CACHE BOOL "" FORCE)
+    set(NOEGL OFF CACHE BOOL "" FORCE)
+    set(DEFAULT_ES 2 CACHE STRING "" FORCE)
+
+    # Instruct CMake to load and compile gl4es quietly as a submodule
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/gl4es/CMakeLists.txt")
+        add_subdirectory(thirdparty/gl4es)
+    else()
+        message(FATAL_ERROR "gl4es submodule missing! Run: git submodule update --init --recursive")
+    endif()
+endif()
