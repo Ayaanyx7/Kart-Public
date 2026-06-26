@@ -533,31 +533,37 @@ if(NOT ${SRB2_SDL2_AVAILABLE} AND NOT ${SRB2_WIN32_AVAILABLE})
 endif()
 
 # ====================================================================
-# Android OpenGL hardware renderer injector via gl4es
+# Android OpenGL hardware renderer injector via gl4es (Gradle 8.9 Isolation)
 # ====================================================================
 if(ANDROID)
-    # 1. Force add the PC hardware files straight into your game target
+    # 1. Directly inject the pristine, clean PC hardware rendering engine files
     target_sources(srb2kart PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_opengl/r_opengl.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/hardware/r_glcommon/r_glcommon.c"
     )
-    
-    # 2. Assign the hardware rendering definitions globally
+
+    # 2. Tell the game engine preprocessor to turn on legacy desktop PC HW drawing loops
     target_compile_definitions(srb2kart PRIVATE 
         HWRENDER 
         UNIX
     )
-    
-    # 3. Force header search path to catch gl4es wrappers before native NDK links
+
+    # 3. Expose the fake desktop GL headers provided by your submodule path
     target_include_directories(srb2kart PRIVATE 
         "${CMAKE_SOURCE_DIR}/thirdparty/gl4es/include"
     )
-    
-    # 4. Bind the target binary execution straight into the translation framework
+
+    # 4. Safely declare gl4es as an imported binary target to keep Gradle 8.9 quiet
+    add_library(gl4es_bridge STATIC IMPORTED)
+    set_target_properties(gl4es_bridge PROPERTIES
+        IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/gl4es/libgl4es.a"
+    )
+
+    # 5. Connect the core executable to the isolated translation engine layers
     target_link_libraries(srb2kart PRIVATE 
-        gl4es 
-        GLESv2 
-        EGL 
-        log
+        gl4es_bridge 
+        GLESv2       # Links downstream to mobile hardware
+        EGL          # Controls viewport canvas display
+        log          # Native system logger access
     )
 endif()
