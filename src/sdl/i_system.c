@@ -3626,12 +3626,58 @@ static const char *searchWad(const char *searchDir)
 
   \return path to srb2.srb if any
 */
+#if defined(__ANDROID__)
+static char customDataPath[512];
+static const char *I_ReadCustomDataPath(void)
+{
+	FILE *f;
+	const char *appStorage;
+	char markerPath[512];
+	size_t len;
+
+	appStorage = I_AppStorageLocation();
+	if (!appStorage)
+		return NULL;
+
+	snprintf(markerPath, sizeof markerPath, "%s/data_path.txt", appStorage);
+
+	f = fopen(markerPath, "rb");
+	if (!f)
+		return NULL;
+
+	len = fread(customDataPath, 1, sizeof customDataPath - 1, f);
+	fclose(f);
+
+	if (len == 0)
+		return NULL;
+
+	customDataPath[len] = '\0';
+
+	while (len > 0 && (customDataPath[len-1] == '\n' || customDataPath[len-1] == '\r' || customDataPath[len-1] == ' '))
+	{
+		customDataPath[--len] = '\0';
+	}
+
+	if (len == 0)
+		return NULL;
+
+	return customDataPath;
+}
+#endif
 static const char *locateWad(void)
 {
 	const char *envstr;
 	const char *WadPath;
 #if defined(__ANDROID__)
     // Access the shared storage location
+	WadPath = I_ReadCustomDataPath();
+    if (WadPath)
+    {
+        I_OutputMsg("Custom folder: %s", WadPath);
+        strcpy(returnWadPath, WadPath);
+        if (isWadPathOk(returnWadPath))
+            return returnWadPath;
+	}
     WadPath = I_SharedStorageLocation();
     if (WadPath)
     {
