@@ -27,6 +27,72 @@ Documentation available here.
 #include "mserv.h"
 #include "i_tcp.h"/* for current_port */
 #include "i_threads.h"
+#ifdef ANDROID
+#include "SDL.h"
+#include <stdio.h>
+
+static char android_cert_path[512];
+static int android_cert_extracted;
+
+static void
+Android_ExtractCert (void)
+{
+	SDL_RWops *asset;
+	FILE *out;
+	char buf[4096];
+	size_t n;
+	const char *storage_path;
+
+	if (android_cert_extracted)
+		return;
+
+	android_cert_extracted = 1;/* only try once, even if it fails */
+
+	storage_path = SDL_AndroidGetExternalStoragePath();
+	if (! storage_path)
+	{
+		Blame("Could not get Android external storage path for cert extraction.\n");
+		return;
+	}
+
+	snprintf(android_cert_path, sizeof android_cert_path, "%s/cert", storage_path);
+
+	/* Skip re-extracting if it's already there from a previous run */
+	out = fopen(android_cert_path, "rb");
+	if (out)
+	{
+		fclose(out);
+		return;
+	}
+
+	/* SDL_RWFromFile with a relative path reaches into the APK's
+	   bundled assets on Android - this matches assets/hms/cert */
+	asset = SDL_RWFromFile("hms/cert", "rb");
+	if (! asset)
+	{
+		Blame("Could not open bundled cert asset for extraction: %s\n", SDL_GetError());
+		android_cert_path[0] = '\0';
+		return;
+	}
+
+	out = fopen(android_cert_path, "wb");
+	if (! out)
+	{
+		Blame("Could not open %s for writing during cert extraction.\n", android_cert_path);
+		SDL_RWclose(asset);
+		android_cert_path[0] = '\0';
+		return;
+	}
+
+	while ((n = SDL_RWread(asset, buf, 1, sizeof buf)) > 0)
+	{
+		fwrite(buf, 1, n, out);
+	}
+
+	fclose(out);
+	SDL_RWclose(asset);
+}
+#endif
 
 /* reasonable default I guess?? */
 #define DEFAULT_BUFFER_SIZE (4096)
@@ -215,6 +281,13 @@ HMS_connect (const char *format, ...)
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+	#ifdef ANDROID
+	Android_ExtractCert();
+	if (android_cert_path[0])
+	{
+		curl_easy_setopt(curl, CURLOPT_CAINFO, android_cert_path);
+	}
+#endif
 
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, cv_masterserver_timeout.value);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, HMS_on_read);
