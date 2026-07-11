@@ -27,6 +27,31 @@ Documentation available here.
 #include "mserv.h"
 #include "i_tcp.h"/* for current_port */
 #include "i_threads.h"
+
+/* reasonable default I guess?? */
+#define DEFAULT_BUFFER_SIZE (4096)
+
+/* I just stop myself from making macros anymore. */
+#define Blame( ... ) \
+	CONS_Printf("\x85" __VA_ARGS__)
+
+static void MasterServer_Debug_OnChange (void);
+
+consvar_t cv_masterserver_timeout = {
+	"masterserver_timeout", "5", CV_SAVE, CV_Unsigned,
+	NULL, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
+};
+
+consvar_t cv_masterserver_debug = {
+	"masterserver_debug", "Off", CV_SAVE|CV_CALL, CV_OnOff,
+	MasterServer_Debug_OnChange, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
+};
+
+consvar_t cv_masterserver_token = {
+	"masterserver_token", "", CV_SAVE, NULL,
+	NULL, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
+};
+
 #ifdef ANDROID
 #include "SDL.h"
 #include <stdio.h>
@@ -93,30 +118,6 @@ Android_ExtractCert (void)
 	SDL_RWclose(asset);
 }
 #endif
-
-/* reasonable default I guess?? */
-#define DEFAULT_BUFFER_SIZE (4096)
-
-/* I just stop myself from making macros anymore. */
-#define Blame( ... ) \
-	CONS_Printf("\x85" __VA_ARGS__)
-
-static void MasterServer_Debug_OnChange (void);
-
-consvar_t cv_masterserver_timeout = {
-	"masterserver_timeout", "5", CV_SAVE, CV_Unsigned,
-	NULL, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
-};
-
-consvar_t cv_masterserver_debug = {
-	"masterserver_debug", "Off", CV_SAVE|CV_CALL, CV_OnOff,
-	MasterServer_Debug_OnChange, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
-};
-
-consvar_t cv_masterserver_token = {
-	"masterserver_token", "", CV_SAVE, NULL,
-	NULL, 0, NULL, NULL, 0, 0, NULL/* C90 moment */
-};
 
 #define HMS_QUERY_VERSION "?v=2.2"
 
@@ -281,7 +282,8 @@ HMS_connect (const char *format, ...)
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	curl_easy_setopt(curl, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
-	#ifdef ANDROID
+
+#ifdef ANDROID
 	Android_ExtractCert();
 	if (android_cert_path[0])
 	{
