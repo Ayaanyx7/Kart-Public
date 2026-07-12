@@ -22,23 +22,17 @@ public class SRB2Game extends SDLActivity {
 	private static final String KEY_DATA_PATH = "data_folder_path";
 	private static final int REQUEST_PICK_FOLDER = 1001;
 
-	private boolean waitingForFolderPick = false;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState); // always initialize properly first
+
 		SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 		String savedPath = prefs.getString(KEY_DATA_PATH, null);
 
 		if (savedPath == null) {
-			// First boot: don't start SDL yet, launch the folder picker first
-			waitingForFolderPick = true;
-			openFolder();
-			// Deliberately NOT calling super.onCreate() here -
-			// we'll call it once the picker returns a result in onActivityResult
+			openFolder(); // Activity is fully valid now and will survive backgrounding
 		} else {
-			// Already configured, write the path for native code and proceed normally
 			writePathForNative(savedPath);
-			super.onCreate(savedInstanceState);
 		}
 	}
 
@@ -72,11 +66,6 @@ public class SRB2Game extends SDLActivity {
 			prefs.edit().putString(KEY_DATA_PATH, resolvedPath).apply();
 
 			writePathForNative(resolvedPath);
-
-			if (waitingForFolderPick) {
-				waitingForFolderPick = false;
-				super.onCreate(null); // now actually start SDL
-			}
 		}
 	}
 
