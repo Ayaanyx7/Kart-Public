@@ -1122,7 +1122,7 @@ void HU_Ticker(void)
 	if (hu_resynching)
 		resynch_ticker++;	//tic tic tic tic tic	
 
-	#ifdef _ANDROID
+	#ifdef __ANDROID__
 static boolean last_chat_on = false;
 
 if (chat_on != last_chat_on)
