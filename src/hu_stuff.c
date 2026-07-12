@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------------------
 /// \file  hu_stuff.c
 /// \brief Heads up display
+#include "SDL.h"
 
 #include "doomdef.h"
 #include "byteptr.h"
