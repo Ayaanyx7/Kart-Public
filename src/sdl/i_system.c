@@ -3635,6 +3635,8 @@ static const char *I_ReadCustomDataPath(void)
 	char markerPath[512];
 	size_t len;
 
+	SDL_Log("I_ReadCustomDataPath() called");   // <-- ADD THIS LINE
+
 	appStorage = I_AppStorageLocation();
 	if (!appStorage)
 		return NULL;
@@ -3653,6 +3655,7 @@ static const char *I_ReadCustomDataPath(void)
 
 	customDataPath[len] = '\0';
 
+	// Strip any trailing newline/whitespace, just in case
 	while (len > 0 && (customDataPath[len-1] == '\n' || customDataPath[len-1] == '\r' || customDataPath[len-1] == ' '))
 	{
 		customDataPath[--len] = '\0';
@@ -3660,6 +3663,8 @@ static const char *I_ReadCustomDataPath(void)
 
 	if (len == 0)
 		return NULL;
+
+	SDL_Log("Custom data path read: %s", customDataPath);   // <-- ADD THIS LINE
 
 	return customDataPath;
 }
