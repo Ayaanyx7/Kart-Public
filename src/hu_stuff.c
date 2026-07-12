@@ -1121,6 +1121,20 @@ void HU_Ticker(void)
 	if (hu_resynching)
 		resynch_ticker++;	//tic tic tic tic tic	
 
+	#ifdef _ANDROID
+static boolean last_chat_on = false;
+
+if (chat_on != last_chat_on)
+{
+	if (chat_on)
+		SDL_StartTextInput();
+	else
+		SDL_StopTextInput();
+
+	last_chat_on = chat_on;
+}
+#endif
+	
 	HU_TickSongCredits();
 }
 
