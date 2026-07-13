@@ -1745,10 +1745,10 @@ void D_SRB2Main(void)
 
 const char *D_Home(void)
 {
-	const char *userhome = NULL;
-
 #if defined(ANDROID)
-    userhome = I_AppStorageLocation();
+    userhome = I_ReadCustomDataPath();
+    if (!userhome)
+        userhome = I_AppStorageLocation();
     return userhome;
 #endif
 #ifdef _arch_dreamcast
