@@ -350,6 +350,11 @@ const char *I_SharedStorageLocation(void);
 */
 const char *I_RemovableStorageLocation(void);
 
+/**	\brief Location chosen by the user via the first-boot folder picker, if one was set.
+		\return path to the custom folder, or NULL if none was set
+*/
+const char *I_ReadCustomDataPath(void);
+
 /**	\brief First Joystick's events
 */
 void I_GetJoystickEvents(void);
