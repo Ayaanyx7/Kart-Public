@@ -1189,10 +1189,6 @@ void D_SRB2Main(void)
 	strcpy(savegamename, SAVEGAMENAME"%u.ssg");
 
 	{
-		const char *userhome = D_Home(); //Alam: path to home
-#if defined(__ANDROID__)
-        strlcpy(srb2path, I_AppStorageLocation(), sizeof(srb2path));
-#endif
 		FILE *tmpfile;
 		char testfile[MAX_WADPATH];
 
