@@ -3628,7 +3628,7 @@ static const char *searchWad(const char *searchDir)
 */
 #if defined(__ANDROID__)
 static char customDataPath[512];
-static const char *I_ReadCustomDataPath(void)
+const char *I_ReadCustomDataPath(void)
 {
 	FILE *f;
 	const char *appStorage;
