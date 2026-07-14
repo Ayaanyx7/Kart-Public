@@ -942,6 +942,7 @@ static void IdentifyVersion(void)
 	// get the current directory (possible problem on NT with "." as current dir)
 	if (srb2waddir)
 	{
+		const char *userhome = D_Home();
 		strlcpy(srb2path,srb2waddir,sizeof (srb2path));
 	}
 	else
