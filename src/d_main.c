@@ -1746,6 +1746,7 @@ void D_SRB2Main(void)
 
 const char *D_Home(void)
 {
+	const char *userhome = NULL; // ADD THIS LINE
 #if defined(ANDROID)
     const char *customPath = I_ReadCustomDataPath();
     if (customPath)
