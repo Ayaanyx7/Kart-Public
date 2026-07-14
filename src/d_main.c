@@ -1747,11 +1747,12 @@ void D_SRB2Main(void)
 const char *D_Home(void)
 {
 #if defined(ANDROID)
-    userhome = I_ReadCustomDataPath();
-    if (!userhome)
-        userhome = I_AppStorageLocation();
-    return userhome;
+    const char *customPath = I_ReadCustomDataPath();
+    if (customPath)
+        return customPath;
+    return I_AppStorageLocation();
 #endif
+	
 #ifdef _arch_dreamcast
 	char VMUHOME[] = "HOME=/vmu/a1";
 	putenv(VMUHOME); //don't use I_PutEnv
