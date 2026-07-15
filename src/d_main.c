@@ -1185,7 +1185,9 @@ void D_SRB2Main(void)
 
 	if (devparm)
 		CONS_Printf(M_GetText("Development mode ON.\n"));
-
+	
+const char *userhome = D_Home();
+	
 	// default savegame
 	strcpy(savegamename, SAVEGAMENAME"%u.ssg");
 
