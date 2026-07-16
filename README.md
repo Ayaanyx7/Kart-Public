@@ -6,10 +6,9 @@
 
 1. Get the latest release of srb2kart android from the releases section
 2. Download the [Assets to SRB2Kart](https://github.com/STJr/Kart-Public/releases/download/v1.6/AssetsLinuxOnly.zip)
-3. Open the game and allow it to view files
-4. Get all the assets from AssetsLinuxOnly beside mdls.dat and the mdls folder
-5. Put those files inside Android/data/org.kartkrew.srb2k/files (you may need shizuku for this)
-6. You can play now!
+3. Create a folder to put your files and add all the files from AssetsLinuxOnly
+4. Launch the game and select that folder
+5. You can play now!
 
 ## Some stuff about the port
 
