@@ -1454,7 +1454,45 @@ CopyCaretColors (char *p, const char *s, int n)
 
 		if (!n)
 			return;
+		
+ #ifdef __ANDROID__
+		// Android FORTIFY fix hopefully
+		if (s[0] && s[1])
+		{
+			c = toupper((unsigned char)s[1]);
+			if (isdigit(c))
+				c = 0x80 + ( c - '0' );
+			else if (c >= 'A' && c <= 'F')
+				c = 0x80 + ( c - 'A' );
+			else
+				c = 0;
 
+			if (c)
+			{
+				*p++ = c;
+				n--;
+
+				if (!n)
+					return;
+			}
+			else
+			{
+				if (n < 2)
+					break;
+
+				memcpy(p, s, 2);
+
+				p += 2;
+				n -= 2;
+			}
+
+			s += 2;
+		}
+		else
+		{
+			break;
+		}
+#else
 		if (s[1])
 		{
 			c = toupper(s[1]);
@@ -1488,6 +1526,8 @@ CopyCaretColors (char *p, const char *s, int n)
 		}
 		else
 			break;
+#endif
+
 	}
 	strncpy(p, s, n);
 }
